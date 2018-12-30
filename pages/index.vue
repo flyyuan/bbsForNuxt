@@ -1,106 +1,89 @@
 <template>
-  <el-container>
-    <el-header>
-      <el-radio-group 
-        v-model="tabPosition" >
-        <el-radio-button 
-          v-for="item in parent" 
-          :key="item.id" 
-          :label="item.id">{{ item.name }}</el-radio-button>
-      </el-radio-group>
-      <el-tabs 
-        v-model="activeName" 
-        @tab-click="handleClick">
-        <el-tab-pane 
-          v-for="item in sub" 
-          :label="item.name" 
-          :name="item.id.toString()" 
-          :key="item.id"/>
-    </el-tabs></el-header>
-    <el-main>
-      <el-card
-        v-for="item in post.records"
-        :key="item.id"
-        class="box-card"
-      >
-        <div 
-          slot="header" 
-          class="clearfix">
-          <span>{{ item.title }}</span>
-        </div>
-        <div class="text item">
-          {{ item.content }}
-        </div>
-      </el-card>
-      <el-pagination
-        :total="total"
-        background
-        layout="prev, pager, next"/>
-    </el-main>
-  </el-container>
+  <div>
+
+    <el-card 
+      v-for="item in list"
+      :key="item.id"
+      class="box-card"
+      shadow="hover"
+    >
+      <div 
+        slot="header" 
+        class="clearfix">
+        <span>{{ item.name }}</span>
+        <el-button 
+          style="float: right; padding: 3px 0" 
+          type="text">操作按钮</el-button>
+      </div>
+      <div 
+        v-if="item.sub.length> 0" >
+        <nuxt-link
+          v-for="sub in item.sub"
+          :key="sub.id" 
+          :to="`/sub/${sub.id}`"
+          class="text item"
+        >
+          {{ sub.name }}
+        </nuxt-link>
+      </div>
+      <div v-else>
+        这里还没有子版块哦~
+      </div>
+    </el-card>
+
+  </div>
 </template>
 
 <script>
-import { getParent, getSub, getPost } from '~/plugins/api.js'
+import { getParent, getSub } from '~/plugins/api.js'
 export default {
-  asyncData({}) {
+  asyncData({ error }) {
+    let list = []
     let parent = []
-    let sub = []
-    let post = []
-    return getParent().then(rs => {
-      parent = rs.data.data
-      return getSub(parent[0].id).then(rs => {
-        sub = rs.data.data
-        return getPost(1, 1, sub[0].id).then(rs => {
-          post = rs.data.data
-          console.log(post)
-          console.log(sub)
-          console.log(parent)
+    return getParent()
+      .then(rs => {
+        parent = rs.data.data
+        let listPromist = parent.map(item => {
+          return getSub(item.id).then(rs => {
+            item.sub = rs.data.data.records
+            return item
+          })
+        })
+        return Promise.all(listPromist).then(list => {
+          console.log(list)
           return {
-            parent: parent,
-            sub: sub,
-            post: post,
-            total: post.total
+            list: list
           }
         })
       })
-    })
+      .catch(e => {
+        error({ statusCode: 404, message: 'Post not found' })
+      })
   },
   data() {
-    return {
-      parent: [],
-      sub: [],
-      post: [],
-      total: 0,
-      activeName: '0',
-      tabPosition: '0'
-    }
+    return {}
   },
   methods: {
-    init() {},
-    handleClick(tab, event) {
-      console.log(tab)
-    }
+    init() {}
   }
 }
 </script>
 
 <style>
-.el-header {
-  line-height: 60px;
-  background-color: white;
-}
-.el-main {
-  background-color: #e2e2e2;
-  margin: 100px 150px 0;
-  min-height: 600px;
-}
 .box-card {
+  margin: 0 20%;
   min-height: 100px;
   margin-bottom: 10px;
 }
-.el-pagination {
-  float: right;
-  margin-top: 10px;
+a {
+  text-decoration: none;
+}
+.text {
+  font-size: 14px;
+}
+
+.item {
+  margin: 0 0 18px 20px;
+  display: block;
 }
 </style>

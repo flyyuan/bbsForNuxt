@@ -1,19 +1,29 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://10.0.26.2:9090'
+axios.defaults.baseURL = 'http://119.29.92.121:9090/'
 
 function getParent() {
   return axios.get(`/board/parent?all=true`)
 }
 
 function getSub(id) {
-  return axios.get(`/board/sub?parentId=${id}&all=true`)
+  return axios.get(`/board/sub?parentId=${id}`)
 }
 
-function getPost(currentPage = 1, pageSize = 1, subId = 0) {
+function getPost(currentPage = 1, pageSize = 10, subId = 0) {
   return axios.get(
-    `/board/post?currentPage=${currentPage}&pageSize=${pageSize}0&subId=${subId}`
+    `/board/post?currentPage=${currentPage}&pageSize=${pageSize}&subId=${subId}`
   )
 }
 
-export { getParent, getSub, getPost }
+function getPostOne(id) {
+  return axios.get(`/board/post/${id}`)
+}
+
+function getPostReply(postId = 1, currentPage = 1, pageSize = 10) {
+  return axios.get(
+    `/board/post/postReply?currentPage=${currentPage}&pageSize=${pageSize}&postId=${postId}`
+  )
+}
+
+export { getParent, getSub, getPost, getPostOne, getPostReply }

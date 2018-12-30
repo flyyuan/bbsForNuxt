@@ -1,24 +1,8 @@
 <template>
-  <el-container>
-    <el-header> 
-      <page-header/>
-    </el-header>
-    <el-main>
-      <nuxt/>
-    </el-main>
-  </el-container>
+  <nuxt/>
 </template>
 
 <script>
-import PageHeader from '~/components/PageHeader.vue'
-import Logo from '~/components/Logo.vue'
-
-export default {
-  components: {
-    PageHeader,
-    Logo
-  }
-}
 </script>
 
 
@@ -69,16 +53,5 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
-}
-
-.el-header {
-  line-height: 60px;
-  padding: 0;
-  background-color: white;
-}
-.el-main {
-  background-color: #e2e2e2;
-  /* margin: 100px 150px 0; */
-  min-height: 600px;
 }
 </style>
