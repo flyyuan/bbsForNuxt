@@ -1,6 +1,19 @@
 import axios from 'axios'
+import { userState, userToken } from '~/plugins/user.js'
 
 axios.defaults.baseURL = 'http://119.29.92.121:9090/'
+
+if (userState()) {
+  axios.defaults.headers.common['token'] = userToken()
+}
+
+function login(data) {
+  return axios.post(`/user/login`, data)
+}
+
+function register(data) {
+  return axios.post('/user/register', data)
+}
 
 function getParent() {
   return axios.get(`/board/parent?all=true`)
@@ -26,4 +39,57 @@ function getPostReply(postId = 1, currentPage = 1, pageSize = 10) {
   )
 }
 
-export { getParent, getSub, getPost, getPostOne, getPostReply }
+function postNewParent(data) {
+  return axios.post('/board/parent', data)
+}
+
+function deleteParent(id) {
+  return axios.delete(`/board/parent/${id}`)
+}
+
+function putParent(data) {
+  return axios.put(`/board/parent`, data)
+}
+
+function postNewSubParent(data) {
+  return axios.post('/board/sub', data)
+}
+
+function deleteSubParent(id) {
+  return axios.delete(`/board/sub/${id}`)
+}
+
+function putSubParent(data) {
+  return axios.put(`/board/sub`, data)
+}
+
+function postNewPost(data) {
+  return axios.post('/board/post', data)
+}
+
+function deletePost(id) {
+  return axios.delete(`/board/post/${id}`)
+}
+
+function putPost(data) {
+  return axios.put(`/board/post`, data)
+}
+
+export {
+  login,
+  register,
+  getParent,
+  getSub,
+  getPost,
+  getPostOne,
+  getPostReply,
+  postNewParent,
+  deleteParent,
+  putParent,
+  postNewSubParent,
+  deleteSubParent,
+  putSubParent,
+  postNewPost,
+  deletePost,
+  putPost
+}

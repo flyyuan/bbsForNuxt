@@ -11,13 +11,10 @@
 
       <div class="title-container">
         <h3 class="title">登录</h3>
-        <lang-select class="set-language"/>
       </div>
 
       <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
+        <span class="svg-container"/>
         <el-input
           v-model="loginForm.username"
           placeholder="请输入用户名"
@@ -28,9 +25,7 @@
       </el-form-item>
 
       <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
+        <span class="svg-container"/>
         <el-input
           :type="passwordType"
           v-model="loginForm.password"
@@ -45,25 +40,26 @@
         type="primary" 
         style="width:100%;margin-bottom:30px;" 
         @click.native.prevent="handleLogin">登录</el-button>
+      <nuxt-link
+        class="link_button" 
+        style="float:right" 
+        to="/register">
+        点我注册
+      </nuxt-link>
 
     </el-form>
   </div>
 </template>
 
 <script>
+import { login } from '~/plugins/api'
 import { isvalidUsername } from '~/plugins/validate'
+var store = require('store')
 
 export default {
   layout: 'loginLay',
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
-      } else {
-        callback()
-      }
-    }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('请输入密码不少于6位'))
@@ -77,9 +73,7 @@ export default {
         password: ''
       },
       loginRules: {
-        username: [
-          { required: true, trigger: 'blur', validator: validateUsername }
-        ],
+        username: [{ required: true, trigger: 'blur' }],
         password: [
           { required: true, trigger: 'blur', validator: validatePassword }
         ]
@@ -116,11 +110,25 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store
-            .dispatch('LoginByUsername', this.loginForm)
-            .then(() => {
-              this.loading = false
-              this.$router.push({ path: this.redirect || '/' })
+          console.log(this.loginForm)
+          login(this.loginForm)
+            .then(rs => {
+              const h = this.$createElement
+              if (rs.data.success) {
+                this.loading = false
+                store.set('user', rs.data)
+                this.$notify({
+                  title: '登录成功',
+                  message: h('i', { style: 'color: teal' }, rs.data.msg)
+                })
+                this.$router.push({ path: this.redirect || '/' })
+              } else {
+                this.loading = false
+                this.$notify({
+                  title: '登录失败',
+                  message: h('i', { style: 'color: teal' }, rs.data.msg)
+                })
+              }
             })
             .catch(() => {
               this.loading = false

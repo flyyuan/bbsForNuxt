@@ -10,14 +10,10 @@
       label-position="left">
 
       <div class="title-container">
-        <h3 class="title">登录</h3>
-        <lang-select class="set-language"/>
+        <h3 class="title">注册</h3>
       </div>
 
       <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
         <el-input
           v-model="loginForm.username"
           placeholder="请输入用户名"
@@ -40,7 +36,7 @@
       <el-form-item prop="repassword">
         <el-input
           :type="passwordType"
-          v-model="loginForm.password"
+          v-model="loginForm.repassword"
           placeholder="请再次输入密码"
           name="password"
           auto-complete="on"
@@ -53,24 +49,25 @@
         style="width:100%;margin-bottom:30px;" 
         @click.native.prevent="handleLogin">注册</el-button>
 
+      <nuxt-link
+        class="link_button" 
+        style="float:right" 
+        to="/login">
+        已经注册，点我登录
+      </nuxt-link>
+
     </el-form>
   </div>
 </template>
 
 <script>
+import { register } from '~/plugins/api'
 import { isvalidUsername } from '~/plugins/validate'
 
 export default {
   layout: 'loginLay',
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
-      } else {
-        callback()
-      }
-    }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('请输入密码不少于6位'))
@@ -78,17 +75,26 @@ export default {
         callback()
       }
     }
+    const validateRepassword = (rule, value, callback) => {
+      if (value !== this.loginForm.password) {
+        callback(new Error('请输入密码不一致'))
+      } else {
+        callback()
+      }
+    }
     return {
       loginForm: {
         username: '',
-        password: ''
+        password: '',
+        repassword: ''
       },
       loginRules: {
-        username: [
-          { required: true, trigger: 'blur', validator: validateUsername }
-        ],
+        username: [{ required: true, trigger: 'blur' }],
         password: [
           { required: true, trigger: 'blur', validator: validatePassword }
+        ],
+        repassword: [
+          { required: true, trigger: 'blur', validator: validateRepassword }
         ]
       },
       passwordType: 'password',
@@ -123,11 +129,25 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store
-            .dispatch('LoginByUsername', this.loginForm)
-            .then(() => {
-              this.loading = false
-              this.$router.push({ path: this.redirect || '/' })
+          console.log(this.loginForm)
+          register(this.loginForm)
+            .then(rs => {
+              const h = this.$createElement
+              if (rs.data.success) {
+                this.loading = false
+                this.$notify({
+                  title: '注册成功',
+                  message: h('i', { style: 'color: teal' }, rs.data.msg)
+                })
+                this.$router.push({ path: this.redirect || '/login' })
+              } else {
+                this.loading = false
+                const h = this.$createElement
+                this.$notify({
+                  title: '注册失败',
+                  message: h('i', { style: 'color: teal' }, rs.data.msg)
+                })
+              }
             })
             .catch(() => {
               this.loading = false

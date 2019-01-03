@@ -1,5 +1,10 @@
 <template>
   <div>
+    <el-button 
+      v-show="true" 
+      style="float:right"
+      type="primary"
+      @click="$router.push(`/newPost/${params.id}?parent=${query.parent}`)">新建帖子</el-button>
     <div v-if="postData.records.length > 0">
       <el-card 
         v-for="item in postData.records"
@@ -34,6 +39,8 @@
 </template>
 <script>
 import { getPost } from '~/plugins/api.js'
+import { userState } from '~/plugins/user.js'
+
 export default {
   watchQuery: ['page'],
   asyncData({ params, query, error }) {
@@ -47,9 +54,16 @@ export default {
       }
     })
   },
+  data() {
+    return {
+      userState: false
+    }
+  },
+  created: function() {
+    this.userState = userState()
+  },
   methods: {
     currentChange(item) {
-      //   console.log(item)
       this.$router.push(`/sub/${this.params.id}?page=${item}`)
     }
   }
@@ -73,6 +87,7 @@ a {
 }
 
 .item {
+  max-height: 100px;
   margin: 0 0 18px 20px;
   display: block;
 }
