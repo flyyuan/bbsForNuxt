@@ -79,6 +79,6 @@ html {
 .el-main {
   background-color: #e2e2e2;
   /* margin: 100px 150px 0; */
-  min-height: 600px;
+  min-height: 1000px;
 }
 </style>

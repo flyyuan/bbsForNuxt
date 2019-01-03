@@ -17,4 +17,12 @@ function userToken() {
   }
 }
 
-export { userState, userToken }
+function userId() {
+  if (userState()) {
+    return user.msg.id
+  } else {
+    return null
+  }
+}
+
+export { userState, userToken, userId }

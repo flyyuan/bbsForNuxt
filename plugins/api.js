@@ -75,6 +75,14 @@ function putPost(data) {
   return axios.put(`/board/post`, data)
 }
 
+function postReply(data) {
+  return axios.post(`/board/post/postReply`, data)
+}
+
+function deleteReply(id) {
+  return axios.delete(`/board/post/postReply/${id}`)
+}
+
 export {
   login,
   register,
@@ -91,5 +99,7 @@ export {
   putSubParent,
   postNewPost,
   deletePost,
-  putPost
+  putPost,
+  postReply,
+  deleteReply
 }

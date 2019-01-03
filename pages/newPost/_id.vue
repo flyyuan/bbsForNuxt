@@ -22,12 +22,27 @@
 </template>
 
 <script>
-import { postNewPost } from '~/plugins/api.js'
+import { postNewPost, getPostOne, putPost } from '~/plugins/api.js'
 export default {
+  watchQuery: ['parent', 'postId'],
   asyncData({ params, query }) {
-    return {
-      params: params,
-      query: query
+    console.log(query)
+    if (query.postId !== undefined) {
+      let postData
+      return getPostOne(query.postId).then(rs => {
+        postData = rs.data.data
+        console.log(rs)
+        return {
+          query: query,
+          params: params,
+          postData: postData
+        }
+      })
+    } else {
+      return {
+        query: query,
+        params: params
+      }
     }
   },
   data() {
@@ -47,31 +62,58 @@ export default {
       }
     }
   },
+  created() {},
   mounted() {
     console.log('app init, my quill insrance object is:', this.myQuillEditor)
+    console.log(this.postData)
+    if (this.query.postId !== undefined) {
+      this.title = this.postData.title
+      this.content = this.postData.content
+    }
   },
   methods: {
     commit() {
       const h = this.$createElement
+      this.$notify({
+        title: '提交中'
+      })
       if (this.title === '' || this.title === null) {
         this.$notify({
           title: '标题不可为空'
         })
         return
       }
-      let data = {
-        parId: this.query.parent,
-        content: this.content,
-        subId: this.params.id,
-        title: this.title
-      }
-      postNewPost(data).then(rs => {
-        console.log(rs)
-        this.$router.push(`/sub/${this.params.id}?parent=${this.query.parent}`)
-        this.$notify({
-          title: rs.data.msg
+      let data = {}
+      if (this.query.postId !== undefined) {
+        this.postData.title = this.title
+        this.postData.content = this.content
+        data = this.postData
+        putPost(data).then(rs => {
+          console.log(rs)
+          this.$router.push(
+            `/sub/${this.params.id}?parent=${this.query.parent}`
+          )
+          this.$notify({
+            title: rs.data.msg
+          })
         })
-      })
+      } else {
+        data = {
+          parId: this.query.parent,
+          content: this.content,
+          subId: this.params.id,
+          title: this.title
+        }
+        postNewPost(data).then(rs => {
+          console.log(rs)
+          this.$router.push(
+            `/sub/${this.params.id}?parent=${this.query.parent}`
+          )
+          this.$notify({
+            title: rs.data.msg
+          })
+        })
+      }
     },
     onEditorBlur(editor) {
       console.log('editor blur!', editor)

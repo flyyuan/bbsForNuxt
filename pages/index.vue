@@ -2,7 +2,7 @@
   <div>
     <el-button 
       v-show="userState" 
-      style="float:right"
+      style="float:right;margin-right:100px"
       type="primary"
       @click="centerDialogVisible = true, dialogState = 0">新建父板块</el-button>
     <el-card 
@@ -17,7 +17,7 @@
         class="clearfix">
         <span>{{ item.name }}</span>
         <div 
-          v-show="userState" 
+          v-show="userState && userId === item.adminId"
           style="float: right; padding: 3px 0" >
           <el-button 
             type="success"
@@ -37,22 +37,21 @@
         v-if="item.sub.length> 0" >
         <div
           v-for="sub in item.sub"
+          v-show="sub.state === 0"
           :key="sub.id">
-          <nuxt-link
-            :to="`/sub/${sub.id}?parent=${item.id}`" 
+          <a 
+            :href="`/sub/${sub.id}?parent=${item.id}`" 
             style="display:inline;"
-            class="text item"
-          >
-            {{ sub.name }}
-          </nuxt-link>
+            target="blank"
+            class="text item" > {{ sub.name }}</a>
           <el-button
-            v-show="userState" 
+            v-show="userState && userId === sub.adminId"
             style=" padding: 3px 0"
             type="warning"
             @click="handleEditSubParent(sub)"
           >编辑</el-button>
           <el-button 
-            v-show="userState" 
+            v-show="userState && userId === sub.adminId"
             style=" padding: 3px 0"
             type="danger"
             @click="handleDeleteSubParent(sub.id)"
@@ -117,7 +116,7 @@ import {
   deleteSubParent,
   putSubParent
 } from '~/plugins/api.js'
-import { userState } from '~/plugins/user.js'
+import { userState, userId } from '~/plugins/user.js'
 
 export default {
   asyncData({ error }) {
@@ -157,6 +156,7 @@ export default {
   },
   created: function() {
     this.userState = userState()
+    this.userId = userId()
   },
   methods: {
     init() {},
@@ -202,7 +202,7 @@ export default {
           title: '编辑父板块',
           message: h('i', { style: 'color: teal' }, rs.data.msg)
         })
-        this.$router.go(0)
+        location.reload()
         this.centerDialogVisible = false
         this.parentName = ''
       })
@@ -219,7 +219,7 @@ export default {
           title: '编辑父板块',
           message: h('i', { style: 'color: teal' }, rs.data.msg)
         })
-        this.$router.go(0)
+        location.reload()
         this.subDialogVisible = false
         this.subParentName = ''
       })
@@ -231,7 +231,7 @@ export default {
           title: '删除父板块',
           message: h('i', { style: 'color: teal' }, rs.data.msg)
         })
-        this.$router.go(0)
+        location.reload()
       })
     },
     handleEditParent(item) {
@@ -247,7 +247,7 @@ export default {
           title: '删除子板块',
           message: h('i', { style: 'color: teal' }, rs.data.msg)
         })
-        this.$router.go(0)
+        location.reload()
       })
     },
     handleEditSubParent(item) {

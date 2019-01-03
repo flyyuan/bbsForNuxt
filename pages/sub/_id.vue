@@ -1,13 +1,14 @@
 <template>
   <div>
     <el-button 
-      v-show="true" 
-      style="float:right"
-      type="primary"
+      v-show="userState"
+      style="float:right;margin-right:100px"
+      type="primary" 
       @click="$router.push(`/newPost/${params.id}?parent=${query.parent}`)">新建帖子</el-button>
     <div v-if="postData.records.length > 0">
       <el-card 
         v-for="item in postData.records"
+        v-show="item.state === 0"
         :key="item.id"
         class="box-card"
         shadow="hover"
@@ -15,15 +16,26 @@
         <div 
           slot="header" 
           class="clearfix">
-          <nuxt-link
-            :to="`/post/${item.id}`"
-          >  <span>{{ item.title }}</span></nuxt-link>
+          <a 
+            :href="`/post/${item.id}`" 
+            target="blank">{{ item.title }}</a>
+         
+          <el-button
+            v-show="userState" 
+            style="float:right; padding: 3px 0;margin:0 3px"
+            type="warning"
+            @click="handleEditSubParent(item.id)"
+          >编辑</el-button>
           <el-button 
-            style="float: right; padding: 3px 0" 
-            type="text">操作按钮</el-button>
+            v-show="userState" 
+            style="float:right; padding: 3px 0"
+            type="danger"
+            @click="handleDeleteSubParent(item.id)"
+          >删除</el-button>
         </div>
         <p class="item"><span v-html="item.content" /> </p>
         <span style="float:right">{{ item.updateDate.replace('T',' ') }}</span>
+        <span >用户ID：{{ item.adminId }}</span>
       </el-card>
       <el-pagination
         :current-page="parseInt(query.page)"
@@ -38,7 +50,7 @@
   </div>
 </template>
 <script>
-import { getPost } from '~/plugins/api.js'
+import { getPost, deletePost } from '~/plugins/api.js'
 import { userState } from '~/plugins/user.js'
 
 export default {
@@ -65,6 +77,22 @@ export default {
   methods: {
     currentChange(item) {
       this.$router.push(`/sub/${this.params.id}?page=${item}`)
+    },
+    handleEditSubParent(id) {
+      this.$router.push(
+        `/newPost/${this.params.id}?parent=${this.query.parent}&postId=${id}`
+      )
+    },
+    handleDeleteSubParent(id) {
+      this.$notify({
+        title: '删除中'
+      })
+      deletePost(id).then(rs => {
+        this.$notify({
+          title: rs.data.msg
+        })
+        this.$router.go(0)
+      })
     }
   }
 }
