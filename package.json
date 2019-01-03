@@ -1,5 +1,11 @@
 {
-  "name": "bbsfornuxt",
+  "config": {
+    "nuxt": {
+      "host": "0.0.0.0",
+      "port": 80
+    }
+  },
+  "name": "论坛",
   "version": "1.0.0",
   "description": "My brilliant Nuxt.js project",
   "author": "BennyShi",
