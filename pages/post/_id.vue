@@ -127,17 +127,23 @@ export default {
     },
     commit() {
       const h = this.$createElement
-      let data = {
-        postId: this.params.id,
-        content: this.content
-      }
-      postReply(data).then(rs => {
-        console.log(rs)
-        this.$notify({
-          title: rs.data.msg
+      if (userState()) {
+        let data = {
+          postId: this.params.id,
+          content: this.content
+        }
+        postReply(data).then(rs => {
+          console.log(rs)
+          this.$notify({
+            title: rs.data.msg
+          })
+          location.reload()
         })
-        location.reload()
-      })
+      } else {
+        this.$notify({
+          title: '登录之后才可以评论哦~'
+        })
+      }
     },
     handleDeleteParent(id) {
       deleteReply(id).then(rs => {

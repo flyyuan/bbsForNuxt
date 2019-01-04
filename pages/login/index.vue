@@ -54,6 +54,7 @@
 <script>
 import { login } from '~/plugins/api'
 import { isvalidUsername } from '~/plugins/validate'
+import { userState } from '~/plugins/user.js'
 var store = require('store')
 
 export default {
@@ -93,7 +94,9 @@ export default {
     }
   },
   created() {
-    // window.addEventListener('hashchange', this.afterQRScan)
+    if (userState()) {
+      this.$router.push({ path: this.redirect || '/' })
+    }
   },
   destroyed() {
     // window.removeEventListener('hashchange', this.afterQRScan)

@@ -43,6 +43,22 @@
           @keyup.enter.native="handleLogin" />
       </el-form-item>
 
+      <p>上传头像：</p>
+      <el-upload
+        :show-file-list="false"
+        :on-success="handleAvatarSuccess"
+        :before-upload="beforeAvatarUpload"
+        class="avatar-uploader"
+        action="http://product.sunray.cn:18080/api/qiniu/infoImages">
+        <img 
+          v-if="loginForm.image" 
+          :src="loginForm.image" 
+          class="avatar">
+        <i 
+          v-else 
+          class="el-icon-plus avatar-uploader-icon"/>
+      </el-upload>
+
       <el-button 
         :loading="loading" 
         type="primary" 
@@ -63,6 +79,7 @@
 <script>
 import { register } from '~/plugins/api'
 import { isvalidUsername } from '~/plugins/validate'
+var store = require('store')
 
 export default {
   layout: 'loginLay',
@@ -86,7 +103,8 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        repassword: ''
+        repassword: '',
+        image: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur' }],
@@ -112,7 +130,7 @@ export default {
     }
   },
   created() {
-    // window.addEventListener('hashchange', this.afterQRScan)
+    store.clearAll()
   },
   destroyed() {
     // window.removeEventListener('hashchange', this.afterQRScan)
@@ -157,6 +175,19 @@ export default {
           return false
         }
       })
+    },
+    handleAvatarSuccess(res, file) {
+      if (res.success) {
+        this.loginForm.image = res.file_path
+      }
+    },
+    beforeAvatarUpload(file) {
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isLt2M
     }
   }
 }
@@ -177,5 +208,30 @@ export default {
   margin: 0px auto 40px auto;
   text-align: center;
   font-weight: bold;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  margin: 20px;
+  display: block;
 }
 </style>
