@@ -83,6 +83,14 @@ function deleteReply(id) {
   return axios.delete(`/board/post/postReply/${id}`)
 }
 
+function resetPassword(data) {
+  return axios.post(`/user/resetPassword`, data)
+}
+
+function resetImage(data) {
+  return axios.post(`/user/resetUserImage`, data)
+}
+
 export {
   login,
   register,
@@ -101,5 +109,7 @@ export {
   deletePost,
   putPost,
   postReply,
-  deleteReply
+  deleteReply,
+  resetPassword,
+  resetImage
 }

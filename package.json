@@ -5,7 +5,7 @@
       "port": 80
     }
   },
-  "name": "论坛",
+  "name": "BBS",
   "version": "1.0.0",
   "description": "My brilliant Nuxt.js project",
   "author": "BennyShi",
